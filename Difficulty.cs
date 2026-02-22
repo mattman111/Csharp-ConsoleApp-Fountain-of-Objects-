@@ -1,0 +1,1 @@
+﻿public enum Difficulty { Unset, Easy, Medium, Hard, Insane }
