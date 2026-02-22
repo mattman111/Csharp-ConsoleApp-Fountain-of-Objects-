@@ -1,5 +1,4 @@
 ﻿using CSharpPlayersGuide.RichConsole;
-using static Room;
 
 
 
@@ -67,13 +66,13 @@ class Game
                 case "insane":
                     difficulty = Difficulty.Insane;
                     return 10;
+                case "hurtme":
+                    difficulty = Difficulty.HurtMe;
+                    return 20;
             }
             RichConsole.WriteLine("Error: Not a valid input!", Colors.Red, TextEffects.Blink);
         }
         while (difficulty == Difficulty.Unset);
         return 0;
     }
-
-
-
 }

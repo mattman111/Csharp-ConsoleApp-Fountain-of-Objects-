@@ -1,1 +1,1 @@
-﻿public enum Difficulty { Unset, Easy, Medium, Hard, Insane }
+﻿public enum Difficulty { Unset, Easy, Medium, Hard, Insane, HurtMe }
