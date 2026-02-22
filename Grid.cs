@@ -14,17 +14,12 @@ class Grid
     //Array of non edge room references (not two dimentional)
     public Room[] NonEdgeRooms { get; }
 
+    public Room Entrance { get; private set; }
+
     //Grid Constants
     private int _entranceNum = 1;
     private int _fountainNum = 1;
     private int _minEventRooms = 1;
-
-    //       Total   Edge   Inside 
-    // 3x3 =   9      8       1
-    // 4x4 =   16     12      4     
-    // 5x5 =   25     16      9
-    // Edge rooms = total - inside#
-    // NonEdge rooms = inside
 
 
     public Grid(int gridsize)
@@ -70,12 +65,12 @@ class Grid
             {
 
                 CaveRooms[i, j] = new Room(i, j);
-                EdgeDir? dir = GetEdgeDirection(i, j);
+                EdgeDir dir = GetEdgeDirection(i, j);
 
                 if (dir != EdgeDir.NOEDGE)
                 {
                     int firstEmpty = Array.IndexOf(EdgeRooms, null);
-                    CaveRooms[i, j].SetRoomAsEdgeRoom(dir.Value);
+                    CaveRooms[i, j].SetRoomAsEdgeRoom(dir);
                     EdgeRooms[firstEmpty] = (CaveRooms[i, j]);
                 }
                 else
@@ -90,17 +85,17 @@ class Grid
     private void SetRoomTypes(int entranceNum, int fountainNum, int minEventRooms)
     {
         // Assign Entrance
-        Random RandomEntrance = new Random();
         for (int i = 0; i < entranceNum; i++)
         {
-            EdgeRooms[RandomEntrance.Next(0, EdgeRooms.Length)].SetRoomType(RoomType.Entrance);
+            var entranceroom = EdgeRooms[Random.Shared.Next(0, EdgeRooms.Length)];
+            entranceroom.SetRoomType(RoomType.Entrance);
+            Entrance = entranceroom;
         }
 
         // Assign Fountain
-        Random RandomFountain = new Random();
         for (int i = 0; i < fountainNum; i++)
         {
-            NonEdgeRooms[RandomFountain.Next(0, EdgeRooms.Length)].SetRoomType(RoomType.Fountain);
+            NonEdgeRooms[Random.Shared.Next(0, NonEdgeRooms.Length)].SetRoomType(RoomType.Fountain);
         }
     }
 

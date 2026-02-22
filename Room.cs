@@ -1,17 +1,15 @@
 ﻿using CSharpPlayersGuide.RichConsole;
 
-class Room
+partial class Room
 {
     // All rooms are 5x5 tiles
     private const int _xlength = 5;
     private const int _ylength = 5;
 
-    //Number of rows in a tile
+    //Number of tiles in a row
     public const int NumOfRoomTilesInRow = _xlength;
 
-    //It seems like Tiles should be a class?
-    public TileTypes[,] tileTypeData { get; init; }
-    public TileColor[,] tileColorData { get; init; }
+    public Tile[,] TilesData { get; private set;  }
 
     public EdgeDir EdgeDirection { get; private set; }
 
@@ -24,41 +22,46 @@ class Room
 
     public Room(int roomGridX, int roomGridY)
     {
-        tileTypeData = new TileTypes[_xlength, _ylength];
-        tileColorData = new TileColor[_xlength, _ylength];
+        TilesData = new Tile[_xlength, _ylength];
         EdgeDirection = EdgeDir.NOEDGE;
         RoomType = RoomType.EventRoom;
         RoomStatus = RoomStatus.Unknown;
         Events = RoomEvents.None;
         RoomGridX = roomGridX;
         RoomGridY = roomGridY;
-        SetupRoom();
+        InitializeRoom();
     }
 
-    public void SetupRoom()
+    public void InitializeRoom()
     {
         for (int i = 0; i < _xlength; i++)
         {
             for (int j = 0; j < _ylength; j++)
             {
                 if (i == 0 && j == 0 || i == 0 && j == 1 || i == 0 && j == 3 || i == 0 && j == 4
-                    || i == 1 && j == 0 || i == 1 && j == 4
-                    || i == 3 & j == 0 || i == 3 && j == 4
-                    || i == 4 && j == 0 || i == 4 && j == 1 || i == 4 && j == 3 || i == 4 && j == 4)
+
+                                   || i == 1 && j == 0 || i == 1 && j == 4
+
+                                   || i == 3 & j == 0 || i == 3 && j == 4
+
+                                   || i == 4 && j == 0 || i == 4 && j == 1 || i == 4 && j == 3 || i == 4 && j == 4)
+
                 {
-                    tileTypeData[i, j] = TileTypes.Solid;
-                    tileColorData[i, j] = TileColor.DarkGrey;
-                }
-                else
-                {
-                    tileTypeData[i, j] = TileTypes.Empty;
-                    tileColorData[i, j] = TileColor.Black;
+
+                    TilesData[i, j] = new Tile(TileTypes.Solid, TileColor.DarkGrey, TileEffect.None);
+
                 }
 
+                else
+
+                {
+
+                    TilesData[i, j] = new Tile(TileTypes.Empty, TileColor.Black, TileEffect.None);
+
+                }
             }
         }
     }
-
     public void DrawRoomRows(int row)
     {
         for (int i = 0; i < _xlength; i++)
@@ -74,7 +77,8 @@ class Room
 
     public Color GetTileColor(int x, int y)
     {
-        switch (tileColorData[x, y])
+        
+        switch (TilesData[x, y].TileColor)
         {
             case TileColor.LightGrey:
                 return Colors.LightGray;
@@ -89,19 +93,21 @@ class Room
         }
     }
 
-    public void SetTileType(int x, int y, TileTypes tiletype)
+    public void SetTile(int x, int y, TileTypes tileType,  TileColor color, TileEffect effect)
     {
-        tileTypeData[x, y] = tiletype;
+        TilesData[x, y] = new Tile(tileType, color, effect);
+        // Update Data()
     }
 
     public void SetRoomType(RoomType roomtype)
     {
-        this.RoomType = roomtype;
+        RoomType = roomtype;
+        //UPDATE DATA()
     }
 
     public string GetTileArt(int x, int y)
     {
-        switch (tileTypeData[x, y])
+        switch (TilesData[x, y].TileType)
         {
             case TileTypes.Empty:
                 return "  ";
@@ -116,53 +122,25 @@ class Room
         }
     }
 
-    public TileColor ReturnRoomColor()
-    {
-        switch (RoomType)
-        {
-            case RoomType.Entrance:
-                return TileColor.White;
-            case RoomType.EventRoom:
-                return TileColor.DarkGrey;
-            default:
-                return TileColor.Blue;
-        }
-    }
 
-    public TileColor ReturnRoomStatusColor()
+
+    public TileColor ReturnRoomColor()
     {
         switch (RoomStatus)
         {
             case RoomStatus.Unknown:
-                return TileColor.Black;
-            case RoomStatus.Known:
                 return TileColor.DarkGrey;
+            case RoomStatus.Known:
+                switch (RoomType)
+                {
+                    case RoomType.Entrance:
+                        return TileColor.White;
+                    case RoomType.EventRoom:
+                        return TileColor.DarkGrey;
+                }
+                return TileColor.Blue;
             default:
                 return TileColor.Blue;
-        }
-    }
-
-    public void SetRoomColor(TileColor tilecolor)
-    {
-        for (int i = 0; i < _xlength; i++)
-        {
-            for (int j = 0; j < _ylength; j++)
-            {
-                if (i == 0 && j == 0 || i == 0 && j == 1 || i == 0 && j == 3 || i == 0 && j == 4
-                    || i == 1 && j == 0 || i == 1 && j == 4
-                    || i == 3 && j == 0 || i == 3 && j == 4
-                    || i == 4 && j == 0 || i == 4 && j == 1 || i == 4 && j == 3 || i == 4 && j == 4)
-                {
-                    tileTypeData[i, j] = TileTypes.Solid;
-                    tileColorData[i, j] = tilecolor;
-                }
-                else
-                {
-                    tileTypeData[i, j] = TileTypes.Empty;
-                    tileColorData[i, j] = TileColor.Black;
-                }
-
-            }
         }
     }
 
@@ -177,63 +155,16 @@ class Room
                 EdgeDirection = edgedir;
                 break;
         }
+        ApplyEdgeConstraints();
 
-        RefreshRoomStates();
-        //Edit tiles
     }
-
-
-    private void RefreshRoomStates()
+private void ApplyEdgeConstraints()
     {
-        //These changes assume that the state of rooms cannot change at runtime. 
-        //Also this is bad
-
-
-        //If NorthEdge
-        if (EdgeDirection == EdgeDir.N)
-        {
-            SetTileType(0, 2, TileTypes.Solid);
-        }
-        //If NorthWestEdge
-        else if (EdgeDirection == EdgeDir.NW)
-        {
-            SetTileType(0, 2, TileTypes.Solid);
-            SetTileType(2, 0, TileTypes.Solid);
-        }
-        // If WestEdge
-        else if (EdgeDirection == EdgeDir.W)
-        {
-            SetTileType(2, 0, TileTypes.Solid);
-        }
-        // If SouthWestEdge
-        else if (EdgeDirection == EdgeDir.SW)
-        {
-            SetTileType(2, 0, TileTypes.Solid);
-            SetTileType(4, 2, TileTypes.Solid);
-        }
-        // If SouthEdge
-        else if (EdgeDirection == EdgeDir.S)
-        {
-            SetTileType(4, 2, TileTypes.Solid);
-        }
-        // If SouthEastEdge
-        else if (EdgeDirection == EdgeDir.SE)
-        {
-            SetTileType(4, 2, TileTypes.Solid);
-            SetTileType(2, 4, TileTypes.Solid);
-        }
-        // If EastEdge
-        else if (EdgeDirection == EdgeDir.E)
-        {
-            SetTileType(2, 4, TileTypes.Solid);
-        }
-        // If NorthEastEdge
-        else if (EdgeDirection == EdgeDir.NE)
-        {
-            SetTileType(2, 4, TileTypes.Solid);
-            SetTileType(0, 2, TileTypes.Solid);
-        }
-
+        // Close the doors if the EdgeDirection says there is a boundary there
+        if (EdgeDirection.ToString().Contains("N")) TilesData[0, 2] = new Tile(TileTypes.Solid, ReturnRoomColor(), TileEffect.None);
+        if (EdgeDirection.ToString().Contains("S")) TilesData[4, 2] = new Tile(TileTypes.Solid, ReturnRoomColor(), TileEffect.None);
+        if (EdgeDirection.ToString().Contains("W")) TilesData[2, 0] = new Tile(TileTypes.Solid, ReturnRoomColor(), TileEffect.None);
+        if (EdgeDirection.ToString().Contains("E")) TilesData[2, 4] = new Tile(TileTypes.Solid, ReturnRoomColor(), TileEffect.None);
     }
 }
 public enum EdgeDir { NOEDGE, N, NW, W, SW, S, SE, E, NE }
