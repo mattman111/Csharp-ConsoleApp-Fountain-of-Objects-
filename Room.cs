@@ -2,9 +2,12 @@
 
 class Room
 {
-    private int _xlength = 5;
-    private int _ylength = 5;
-    public static int RowNum;
+    // All rooms are 5x5 tiles
+    private const int _xlength = 5;
+    private const int _ylength = 5;
+
+    //Number of rows in a tile
+    public const int NumOfRoomTilesInRow = _xlength;
 
     //It seems like Tiles should be a class?
     public TileTypes[,] tileTypeData { get; init; }
@@ -16,15 +19,19 @@ class Room
     public RoomStatus RoomStatus { get; private set; }
     public RoomEvents Events { get; private set; }
 
-    public Room()
+    public int RoomGridX { get; init; }
+    public int RoomGridY { get; init; }
+
+    public Room(int roomGridX, int roomGridY)
     {
         tileTypeData = new TileTypes[_xlength, _ylength];
         tileColorData = new TileColor[_xlength, _ylength];
-        RowNum = _xlength;
         EdgeDirection = EdgeDir.NOEDGE;
         RoomType = RoomType.EventRoom;
         RoomStatus = RoomStatus.Unknown;
         Events = RoomEvents.None;
+        RoomGridX = roomGridX;
+        RoomGridY = roomGridY;
         SetupRoom();
     }
 
@@ -85,6 +92,11 @@ class Room
     public void SetTileType(int x, int y, TileTypes tiletype)
     {
         tileTypeData[x, y] = tiletype;
+    }
+
+    public void SetRoomType(RoomType roomtype)
+    {
+        this.RoomType = roomtype;
     }
 
     public string GetTileArt(int x, int y)

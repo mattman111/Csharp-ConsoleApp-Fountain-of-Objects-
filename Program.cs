@@ -12,6 +12,8 @@ Console.SetWindowPosition(0, 0);
 Game game = new Game();
 game.SetupGame();
 
+RichConsole.WriteLine($"Entrance: is at {game.GameGrid.EdgeRooms[Array.FindIndex(game.GameGrid.EdgeRooms, index => index.RoomType == RoomType.Entrance)].RoomGridX} , {game.GameGrid.EdgeRooms[Array.FindIndex(game.GameGrid.EdgeRooms, index => index.RoomType == RoomType.Entrance)].RoomGridY} ");
+
 Player player1 = new Player();
 RichConsole.WriteLine(player1.DisplayEmotionalState());
 

@@ -58,7 +58,7 @@ class Grid
     public void SetupGrid()
     {
         SetRoomsInsideOutside();
-        //SetRoomTypes(constants);
+        SetRoomTypes(_entranceNum, _fountainNum, _minEventRooms);
     }
 
     private void SetRoomsInsideOutside()
@@ -69,7 +69,7 @@ class Grid
             for (int j = 0; j < ylength; j++)
             {
 
-                CaveRooms[i, j] = new Room();
+                CaveRooms[i, j] = new Room(i, j);
                 EdgeDir? dir = GetEdgeDirection(i, j);
 
                 if (dir != EdgeDir.NOEDGE)
@@ -87,18 +87,35 @@ class Grid
         }
     }
 
+    private void SetRoomTypes(int entranceNum, int fountainNum, int minEventRooms)
+    {
+        // Assign Entrance
+        Random RandomEntrance = new Random();
+        for (int i = 0; i < entranceNum; i++)
+        {
+            EdgeRooms[RandomEntrance.Next(0, EdgeRooms.Length)].SetRoomType(RoomType.Entrance);
+        }
+
+        // Assign Fountain
+        Random RandomFountain = new Random();
+        for (int i = 0; i < fountainNum; i++)
+        {
+            NonEdgeRooms[RandomFountain.Next(0, EdgeRooms.Length)].SetRoomType(RoomType.Fountain);
+        }
+    }
+
     /// <summary>
     /// This method will draw the entire game grid. 
     /// </summary>
     public void DrawFullGrid()
     {
-        //Grid Col
+        //Grid Row
         for (int i = 0; i < xlength; i++)
         {
             //Room Row
-            for (int j = 0; j < Room.RowNum; j++)
+            for (int j = 0; j < Room.NumOfRoomTilesInRow; j++)
             {
-                //
+                // Grid Col
                 for (int k = 0; k < ylength; k++)
                 {
                     CaveRooms[i, k].DrawRoomRows(j);
