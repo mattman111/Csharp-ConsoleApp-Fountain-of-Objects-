@@ -48,7 +48,7 @@ partial class Room
 
                 {
 
-                    TilesData[i, j] = new Tile(TileTypes.Solid, TileColor.DarkGrey, TileEffect.None);
+                    TilesData[i, j] = new Tile(TileType.Solid, TileColor.DarkGrey, TileEffect.None);
 
                 }
 
@@ -56,7 +56,7 @@ partial class Room
 
                 {
 
-                    TilesData[i, j] = new Tile(TileTypes.Empty, TileColor.Black, TileEffect.None);
+                    TilesData[i, j] = new Tile(TileType.Empty, TileColor.Black, TileEffect.None);
 
                 }
             }
@@ -93,7 +93,7 @@ partial class Room
         }
     }
 
-    public void SetTile(int x, int y, TileTypes tileType,  TileColor color, TileEffect effect)
+    public void SetTile(int x, int y, TileType tileType,  TileColor color, TileEffect effect)
     {
         TilesData[x, y] = new Tile(tileType, color, effect);
         // Update Data()
@@ -109,13 +109,13 @@ partial class Room
     {
         switch (TilesData[x, y].TileType)
         {
-            case TileTypes.Empty:
+            case TileType.Empty:
                 return "  ";
-            case TileTypes.Solid:
+            case TileType.Solid:
                 return "🧱";
-            case TileTypes.Entrance:
+            case TileType.Entrance:
                 return "⛆";
-            case TileTypes.Player:
+            case TileType.Player:
                 return "😐";
             default:
                 return "?";
@@ -160,11 +160,11 @@ partial class Room
     }
 private void ApplyEdgeConstraints()
     {
-        // Close the doors if the EdgeDirection says there is a boundary there
-        if (EdgeDirection.ToString().Contains("N")) TilesData[0, 2] = new Tile(TileTypes.Solid, ReturnRoomColor(), TileEffect.None);
-        if (EdgeDirection.ToString().Contains("S")) TilesData[4, 2] = new Tile(TileTypes.Solid, ReturnRoomColor(), TileEffect.None);
-        if (EdgeDirection.ToString().Contains("W")) TilesData[2, 0] = new Tile(TileTypes.Solid, ReturnRoomColor(), TileEffect.None);
-        if (EdgeDirection.ToString().Contains("E")) TilesData[2, 4] = new Tile(TileTypes.Solid, ReturnRoomColor(), TileEffect.None);
+        // Close open doorways if the EdgeDirection says there is a boundary there
+        if (EdgeDirection.ToString().Contains("N")) TilesData[0, 2] = new Tile(TileType.Solid, ReturnRoomColor(), TileEffect.None);
+        if (EdgeDirection.ToString().Contains("S")) TilesData[4, 2] = new Tile(TileType.Solid, ReturnRoomColor(), TileEffect.None);
+        if (EdgeDirection.ToString().Contains("W")) TilesData[2, 0] = new Tile(TileType.Solid, ReturnRoomColor(), TileEffect.None);
+        if (EdgeDirection.ToString().Contains("E")) TilesData[2, 4] = new Tile(TileType.Solid, ReturnRoomColor(), TileEffect.None);
     }
 }
 public enum EdgeDir { NOEDGE, N, NW, W, SW, S, SE, E, NE }

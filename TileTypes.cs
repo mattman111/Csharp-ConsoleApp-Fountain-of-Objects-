@@ -1,1 +1,1 @@
-﻿public enum TileTypes { Empty, Solid, Player, Entrance }
+﻿public enum TileType { Empty, Solid, Player, Entrance }

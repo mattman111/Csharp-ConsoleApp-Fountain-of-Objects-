@@ -1,4 +1,5 @@
 ﻿using CSharpPlayersGuide.RichConsole;
+using static Room;
 
 
 
@@ -72,5 +73,7 @@ class Game
         while (difficulty == Difficulty.Unset);
         return 0;
     }
+
+
 
 }
