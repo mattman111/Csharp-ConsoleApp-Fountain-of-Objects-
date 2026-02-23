@@ -14,18 +14,30 @@ class Grid
     //Array of non edge room references (not two dimentional)
     public Room[] NonEdgeRooms { get; }
 
+    //TODO
+    //Add array to all event rooms
+
     public Room Entrance { get; private set; }
+
+    public Room Fountain {  get; private set; }
+
+    //TODO
+    //Add a reference to the current player room
+
 
     //Grid Constants
     private int _entranceNum = 1;
     private int _fountainNum = 1;
-    private int _minEventRooms = 1;
+    private int _minEventRooms;
+    private int _maxEventRooms;
 
 
     public Grid(int gridsize)
     {
         this.xlength = gridsize;
         this.ylength = gridsize;
+        _minEventRooms = gridsize;
+        _maxEventRooms = (xlength * ylength) / 2;
         CaveRooms = new Room[xlength, ylength];
         EdgeRooms = new Room[(gridsize * gridsize) - ((int)Math.Pow(gridsize - 2, 2))];
         NonEdgeRooms = new Room[(int)Math.Pow(gridsize - 2, 2)];
@@ -53,7 +65,7 @@ class Grid
     public void SetupGrid()
     {
         SetRoomsInsideOutside();
-        SetRoomTypes(_entranceNum, _fountainNum, _minEventRooms);
+        SetRoomTypes();
     }
 
     private void SetRoomsInsideOutside()
@@ -70,7 +82,7 @@ class Grid
                 if (dir != EdgeDir.NOEDGE)
                 {
                     int firstEmpty = Array.IndexOf(EdgeRooms, null);
-                    CaveRooms[i, j].SetRoomAsEdgeRoom(dir);
+                    CaveRooms[i, j].EdgeDirection = dir;
                     EdgeRooms[firstEmpty] = (CaveRooms[i, j]);
                 }
                 else
@@ -82,20 +94,46 @@ class Grid
         }
     }
 
-    private void SetRoomTypes(int entranceNum, int fountainNum, int minEventRooms)
+    private void SetRoomTypes()
     {
         // Assign Entrance
-        for (int i = 0; i < entranceNum; i++)
+        for (int i = 0; i < _entranceNum; i++)
         {
             var entranceroom = EdgeRooms[Random.Shared.Next(0, EdgeRooms.Length)];
             entranceroom.SetRoomType(RoomType.Entrance);
+            entranceroom.PlayerPresent = true;
             Entrance = entranceroom;
         }
 
         // Assign Fountain
-        for (int i = 0; i < fountainNum; i++)
+        for (int i = 0; i < _fountainNum; i++)
         {
-            NonEdgeRooms[Random.Shared.Next(0, NonEdgeRooms.Length)].SetRoomType(RoomType.Fountain);
+            var fountainroom = NonEdgeRooms[Random.Shared.Next(0, NonEdgeRooms.Length)];
+            fountainroom.SetRoomType(RoomType.Fountain);
+            Fountain = fountainroom;
+        }
+
+        //Assign Event Rooms
+        for (int i = 0; i < Random.Shared.Next(_minEventRooms, _maxEventRooms); i++)
+        {
+            int x = Random.Shared.Next(0, xlength);
+            int y = Random.Shared.Next(0, ylength);
+            if (CaveRooms[x, y].RoomType == RoomType.Empty)
+            {
+                switch (Random.Shared.Next(1, 4))
+                {
+                    case 1:
+                        CaveRooms[x, y].SetRoomType(RoomType.Pit);
+                        break;
+                    case 2:
+                        CaveRooms[x, y].SetRoomType(RoomType.Maelstrom);
+                        break;
+                    case 3:
+                        CaveRooms[x, y].SetRoomType(RoomType.Amarok);
+                        break;
+                }
+            }
+
         }
     }
 

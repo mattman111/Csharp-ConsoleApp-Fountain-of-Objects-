@@ -19,3 +19,11 @@
 
 }
 
+//All possible colors of tiles
+public enum TileColor { Black, Grey, Orange, Yellow, White, DarkGrey, LightGrey, Blue, Red, Aqua }
+
+//All possible effects of tiles
+public enum TileEffect { None, Blink, DoubleUnderline }
+
+//All possible types of tiles
+public enum TileType { Empty, Solid, Player, Entrance, Fountain, Pit, Maelstrom, Amarok }

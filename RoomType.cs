@@ -1,1 +1,1 @@
-﻿public enum RoomType { Entrance, Fountain, EventRoom }
+﻿public enum RoomType { Entrance, Fountain, Empty, Pit, Maelstrom, Amarok }

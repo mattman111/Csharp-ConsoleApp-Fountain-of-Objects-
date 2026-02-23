@@ -4,15 +4,16 @@
 
 //THIS IS THE ENTRY POINT
 RichConsole.WriteLine("Welcome to Matt's Fountain of Objects!", TextEffects.DoubleUnderline);
-RichConsole.WriteLine("Make sure to fullscreen! Double click the top bar!", Colors.Aqua, TextEffects.Blink);
+RichConsole.WriteLine("Make sure to fullscreen! Double click the top bar! You may need to zoom out with CTRL + Mousewheel", Colors.Aqua, TextEffects.Blink);
 Console.SetWindowSize(Console.LargestWindowWidth, Console.LargestWindowHeight);
 Console.SetWindowPosition(0, 0);
 
 
 Game game = new Game();
+// A new game has all data ready to go. 
 game.SetupGame();
 
-RichConsole.WriteLine($"Entrance: is at {game.GameGrid.Entrance.RoomGridX} , {game.GameGrid.Entrance.RoomGridY} ");
+RichConsole.WriteLine($"Entrance: is at {game.GameGrid.Entrance.RoomInGridX} , {game.GameGrid.Entrance.RoomInGridY}. Player is here: {game.GameGrid.Entrance.PlayerPresent} ");
 
 Player player1 = new Player();
 RichConsole.WriteLine(player1.DisplayEmotionalState());
@@ -21,7 +22,8 @@ RichConsole.WriteLine(player1.DisplayEmotionalState());
 
 //TODO: 
 // (1) Assign one entrance to a edge room.
-// (2) Draw 9 rooms from the players starting position. (HOW DO I DO THIS?)
+// (1.5) Refactor Room Class
+// (2) Draw 8 rooms around the players starting position [GAME VIEW]. (HOW DO I DO THIS?)
 
 
 
