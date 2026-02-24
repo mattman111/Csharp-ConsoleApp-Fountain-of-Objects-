@@ -1,7 +1,7 @@
 ﻿class Player
 {
-    public int x { get; private set; }
-    public int y { get; private set; }
+    public int x { get; set; }
+    public int y { get; set; }
 
     public string emotion { get; private set; }
 
@@ -12,9 +12,5 @@
         //PLAYER STARTS AT 2,2
         x = 2;
         y = 2;
-    }
-    public string DisplayEmotionalState()
-    {
-        return this.emotion;
     }
 }

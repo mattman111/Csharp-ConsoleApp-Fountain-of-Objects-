@@ -1,28 +1,26 @@
 ﻿using CSharpPlayersGuide.RichConsole;
+using System.Numerics;
 
 
 
 //THIS IS THE ENTRY POINT
 RichConsole.WriteLine("Welcome to Matt's Fountain of Objects!", TextEffects.DoubleUnderline);
-RichConsole.WriteLine("Make sure to fullscreen! Double click the top bar! You may need to zoom out with CTRL + Mousewheel", Colors.Aqua, TextEffects.Blink);
+RichConsole.WriteLine("Make sure to fullscreen! Double click the top bar! You may need to adjust zoom level with LCTRL + Mousewheel", Colors.Aqua, TextEffects.Blink);
 Console.SetWindowSize(Console.LargestWindowWidth, Console.LargestWindowHeight);
 Console.SetWindowPosition(0, 0);
+Console.BackgroundColor = ConsoleColor.Black;
+Console.ForegroundColor = ConsoleColor.Black;
 
 
 Game game = new Game();
 // A new game has all data ready to go. 
-game.SetupGame();
+game.StartGame();
 
-RichConsole.WriteLine($"Entrance: is at {game.GameGrid.Entrance.RoomInGridX} , {game.GameGrid.Entrance.RoomInGridY}. Player is here: {game.GameGrid.Entrance.PlayerPresent} ");
 
-Player player1 = new Player();
-RichConsole.WriteLine(player1.DisplayEmotionalState());
 
 //Game
 
 //TODO: 
-// (1) Assign one entrance to a edge room.
-// (1.5) Refactor Room Class
 // (2) Draw 8 rooms around the players starting position [GAME VIEW]. (HOW DO I DO THIS?)
 
 
@@ -32,16 +30,50 @@ class Game
 
     public Difficulty difficulty;
     public Grid GameGrid;
+    public Player player { get; set; }
 
     public Game()
     {
         // GRID CONSTRUCTOR
         GameGrid = new Grid(SetupDifficulty());
+        player = new Player();
     }
 
-    public void SetupGame()
+    public void StartGame()
     {
-        GameGrid.DrawFullGrid();
+        while (true)
+        {
+            RichConsole.Clear();
+            GameGrid.DrawFullMap();
+            RichConsole.WriteLine("GAME VIEW");
+            var key = Console.ReadKey(true);
+            switch (key.Key)
+            {
+                case ConsoleKey.UpArrow:
+                    Math.Clamp(player.y += 1, 0, 4);
+                    GameGrid.Entrance.PlayerPosition = new Vector2(player.x, player.y);
+                    break;
+                case ConsoleKey.DownArrow:
+                    Math.Clamp(player.y -= 1, 0, 4);
+                    GameGrid.Entrance.PlayerPosition = new Vector2(player.x, player.y);
+                    break;
+                case ConsoleKey.LeftArrow:
+                    break;
+                case ConsoleKey.RightArrow:
+                    break;
+                case ConsoleKey.M:
+                    RichConsole.Clear();
+                    GameGrid.DrawFullMap();
+                    RichConsole.WriteLine("MAP VIEW -- Press M to Close");
+                    while (Console.ReadKey().Key != ConsoleKey.M)
+                    {
+                        //Wait for map to be closed
+                    }
+                    break;
+            }
+
+
+        }
     }
 
     public int SetupDifficulty()

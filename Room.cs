@@ -1,4 +1,5 @@
 ﻿using CSharpPlayersGuide.RichConsole;
+using System.Numerics;
 
 partial class Room
 {
@@ -11,6 +12,9 @@ partial class Room
     private RoomType _roomType;
     private RoomStatus _roomStatus;
     private bool _playerPresent;
+
+    //The default starting position (off board)
+    private Vector2 _playerPosition = new Vector2(-1,-1);
 
     //Number of tiles in a row
     public const int NumOfRoomTilesInRow = _xlength;
@@ -40,6 +44,12 @@ partial class Room
         set { _playerPresent = value; RefreshRoomData(); }
     }
 
+    public Vector2 PlayerPosition
+    {
+        get => _playerPosition;
+        set { _playerPosition = value; RefreshRoomData(); }
+    }
+
     public int RoomInGridX { get; init; }
     public int RoomInGridY { get; init; }
 
@@ -59,7 +69,6 @@ partial class Room
     /// </summary>
     public void RefreshRoomData()
     {
-        TileColor color = GetCurrentRoomColor();
         for (int i = 0; i < _xlength; i++)
         {
             for (int j = 0; j < _ylength; j++)
@@ -75,10 +84,16 @@ partial class Room
         // 1. Handle Walls/Edges
         if (IsWallCoordinate(i, j)) return new Tile(TileType.Solid, TileColor.DarkGrey, TileEffect.None);
 
-        // 2. Special Room Centers
+        // 2.
+        if (_playerPresent == true && (i == _playerPosition.X && j == _playerPosition.Y))
+        {
+            return new Tile(TileType.Player, TileColor.White, TileEffect.None);
+        }
+
+        // 3. Special Room Centers
         if (i == 2 && j == 2)
         {
-            return RoomType switch
+            return _roomType switch
             {
                 RoomType.Fountain => new Tile(TileType.Fountain, TileColor.Aqua, TileEffect.Blink),
                 RoomType.Pit => new Tile(TileType.Pit, TileColor.LightGrey, TileEffect.Blink),
@@ -88,28 +103,31 @@ partial class Room
             };
         }
 
-        // 3. Entrance Doorway(s) Logic
-        if (RoomType == RoomType.Entrance && IsEntrace(i,j))
+        // 4. Entrance Doorway(s) Logic
+        if (_roomType == RoomType.Entrance && IsEntrace(i,j))
         {
             return new Tile(TileType.Entrance, TileColor.Orange, TileEffect.None);
         }
 
-        // 4. Pit Doorway(s) Logic
-        if (RoomType == RoomType.Pit && IsEntrace(i, j))
-        {
-            return new Tile(TileType.Solid, TileColor.DarkGrey, TileEffect.None);
-        }
-        // 5. Maelstrom Doorway(s) Logic
-        if (RoomType == RoomType.Maelstrom && IsEntrace(i, j))
-        {
-            return new Tile(TileType.Solid, TileColor.DarkGrey, TileEffect.None);
-        }
-        // 6. Amark Doorway(s) Logic
-        if (RoomType == RoomType.Amarok && IsEntrace(i, j))
+        // 5. Pit Doorway(s) Logic
+        if (_roomType == RoomType.Pit && IsEntrace(i, j))
         {
             return new Tile(TileType.Solid, TileColor.DarkGrey, TileEffect.None);
         }
 
+        // 6. Maelstrom Doorway(s) Logic
+        if (_roomType == RoomType.Maelstrom && IsEntrace(i, j))
+        {
+            return new Tile(TileType.Solid, TileColor.DarkGrey, TileEffect.None);
+        }
+
+        // 7. Amark Doorway(s) Logic
+        if (_roomType == RoomType.Amarok && IsEntrace(i, j))
+        {
+            return new Tile(TileType.Solid, TileColor.DarkGrey, TileEffect.None);
+        }
+
+        //There is nothing to draw
         return new Tile(TileType.Empty, TileColor.Black, TileEffect.None);
     }
 
@@ -166,6 +184,10 @@ partial class Room
 
     public Color GetTileColor(int x, int y)
     {
+        if (RoomStatus == RoomStatus.Unknown)
+        {
+            return Colors.Black;
+        }
 
         switch (TilesData[x, y].TileColor)
         {
@@ -190,31 +212,6 @@ partial class Room
         }
     }
 
-    public TileColor GetCurrentRoomColor()
-    {
-        if (RoomStatus == RoomStatus.Unknown)
-        {
-            return TileColor.Black;
-        }
-
-        switch (_roomType)
-        {
-            case RoomType.Empty:
-                return TileColor.DarkGrey;
-            case RoomType.Entrance:
-                return TileColor.Yellow;
-            default:
-                return TileColor.Red;
-        }
-
-    }
-
-    public void SetTile(int x, int y, TileType tileType, TileColor color, TileEffect effect)
-    {
-        TilesData[x, y] = new Tile(tileType, color, effect);
-        // Update Data()
-    }
-
     public void SetRoomType(RoomType roomtype)
     {
         RoomType = roomtype;
@@ -223,6 +220,11 @@ partial class Room
 
     public string GetTileArt(int x, int y)
     {
+        if (RoomStatus == RoomStatus.Unknown)
+        {
+            return "  ";
+        }
+
         switch (TilesData[x, y].TileType)
         {
             case TileType.Empty:

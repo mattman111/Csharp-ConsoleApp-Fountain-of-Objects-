@@ -1,4 +1,5 @@
 ﻿using CSharpPlayersGuide.RichConsole;
+using System.Numerics;
 
 class Grid
 {
@@ -102,6 +103,8 @@ class Grid
             var entranceroom = EdgeRooms[Random.Shared.Next(0, EdgeRooms.Length)];
             entranceroom.SetRoomType(RoomType.Entrance);
             entranceroom.PlayerPresent = true;
+            entranceroom.RoomStatus = RoomStatus.Known;
+            entranceroom.PlayerPosition = new Vector2(2,2);
             Entrance = entranceroom;
         }
 
@@ -138,9 +141,9 @@ class Grid
     }
 
     /// <summary>
-    /// This method will draw the entire game grid. 
+    /// This method will draw the entire known game grid
     /// </summary>
-    public void DrawFullGrid()
+    public void DrawFullMap()
     {
         //Grid Row
         for (int i = 0; i < xlength; i++)
