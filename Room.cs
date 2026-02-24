@@ -7,6 +7,9 @@ partial class Room
     private const int _xlength = 5;
     private const int _ylength = 5;
 
+    private int _artplacementspotx = Random.Shared.Next(1, 4);
+    private int _artplacementspoty = Random.Shared.Next(1, 4);
+
     //Explicit backing fields
     private EdgeDir _edgeDiection;
     private RoomType _roomType;
@@ -56,7 +59,7 @@ partial class Room
     public Room(int roomGridX, int roomGridY)
     {
         TilesData = new Tile[_xlength, _ylength];
-        EdgeDirection = EdgeDir.NOEDGE;
+        EdgeDirection = EdgeDir.None;
         RoomType = RoomType.Empty;
         RoomStatus = RoomStatus.Unknown;
         RoomInGridX = roomGridX;
@@ -84,14 +87,14 @@ partial class Room
         // 1. Handle Walls/Edges
         if (IsWallCoordinate(i, j)) return new Tile(TileType.Solid, TileColor.DarkGrey, TileEffect.None);
 
-        // 2.
+        // 2. PLAYER
         if (_playerPresent == true && (i == _playerPosition.X && j == _playerPosition.Y))
         {
             return new Tile(TileType.Player, TileColor.White, TileEffect.None);
         }
 
         // 3. Special Room Centers
-        if (i == 2 && j == 2)
+        if (i == _artplacementspotx && j == _artplacementspoty)
         {
             return _roomType switch
             {
@@ -104,7 +107,7 @@ partial class Room
         }
 
         // 4. Entrance Doorway(s) Logic
-        if (_roomType == RoomType.Entrance && IsEntrace(i,j))
+        if (_roomType == RoomType.Entrance && IsEntrace(i, j))
         {
             return new Tile(TileType.Entrance, TileColor.Orange, TileEffect.None);
         }
@@ -149,19 +152,19 @@ partial class Room
     {
         if (IsDoorwayCoordinate(i,j))
         {
-            if (EdgeDirection.ToString().Contains("N") && (i == 0 && j == 2))
+            if (EdgeDirection.HasFlag(EdgeDir.N) && (i == 0 && j == 2))
             {
                 return true;
             }
-            if (EdgeDirection.ToString().Contains("S") && (i == 4 && j == 2))
+            if (EdgeDirection.HasFlag(EdgeDir.S) && (i == 4 && j == 2))
             {
                 return true;
             }
-            if (EdgeDirection.ToString().Contains("E") && (i == 2 && j == 4))
+            if (EdgeDirection.HasFlag(EdgeDir.E) && (i == 2 && j == 4))
             {
                 return true;
             }
-            if (EdgeDirection.ToString().Contains("W") && (i == 2 && j == 0))
+            if (EdgeDirection.HasFlag(EdgeDir.W) && (i == 2 && j == 0))
             {
                 return true;
             }
@@ -184,10 +187,10 @@ partial class Room
 
     public Color GetTileColor(int x, int y)
     {
-        if (RoomStatus == RoomStatus.Unknown)
-        {
-            return Colors.Black;
-        }
+        //if (RoomStatus == RoomStatus.Unknown)
+        //{
+        //    return Colors.Black;
+        //}
 
         switch (TilesData[x, y].TileColor)
         {
@@ -220,10 +223,10 @@ partial class Room
 
     public string GetTileArt(int x, int y)
     {
-        if (RoomStatus == RoomStatus.Unknown)
-        {
-            return "  ";
-        }
+        //if (RoomStatus == RoomStatus.Unknown)
+        //{
+        //    return "  ";
+        //}
 
         switch (TilesData[x, y].TileType)
         {
@@ -274,11 +277,13 @@ partial class Room
     private void ApplyEdgeConstraints()
     {
         // Close open doorways if the EdgeDirection says there is a boundary there
-        if (EdgeDirection.ToString().Contains("N")) TilesData[0, 2] = new Tile(TileType.Solid, ReturnRoomColor(), TileEffect.None);
-        if (EdgeDirection.ToString().Contains("S")) TilesData[4, 2] = new Tile(TileType.Solid, ReturnRoomColor(), TileEffect.None);
-        if (EdgeDirection.ToString().Contains("W")) TilesData[2, 0] = new Tile(TileType.Solid, ReturnRoomColor(), TileEffect.None);
-        if (EdgeDirection.ToString().Contains("E")) TilesData[2, 4] = new Tile(TileType.Solid, ReturnRoomColor(), TileEffect.None);
+        if (EdgeDirection.HasFlag(EdgeDir.N)) TilesData[0, 2] = new Tile(TileType.Solid, ReturnRoomColor(), TileEffect.None);
+        if (EdgeDirection.HasFlag(EdgeDir.S)) TilesData[4, 2] = new Tile(TileType.Solid, ReturnRoomColor(), TileEffect.None);
+        if (EdgeDirection.HasFlag(EdgeDir.W)) TilesData[2, 0] = new Tile(TileType.Solid, ReturnRoomColor(), TileEffect.None);
+        if (EdgeDirection.HasFlag(EdgeDir.E)) TilesData[2, 4] = new Tile(TileType.Solid, ReturnRoomColor(), TileEffect.None);
     }
 }
-//C IS FOR CENTER 
-public enum EdgeDir { NOEDGE, N, NW, W, SW, S, SE, E, NE }
+
+//EdgeDir needs to be a bit field or everything is harder. 
+[Flags]
+public enum EdgeDir { None = 0, N = 1, S = 2, E = 4, W = 8, NE = N | E, NW = N | W, SE = S | E, SW = S | W }

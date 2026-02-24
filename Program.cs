@@ -1,6 +1,6 @@
 ﻿using CSharpPlayersGuide.RichConsole;
 using System.Numerics;
-
+using System.Windows.Input;
 
 
 //THIS IS THE ENTRY POINT
@@ -19,12 +19,6 @@ game.StartGame();
 
 
 //Game
-
-//TODO: 
-// (2) Draw 8 rooms around the players starting position [GAME VIEW]. (HOW DO I DO THIS?)
-
-
-
 class Game
 {
 
@@ -44,24 +38,40 @@ class Game
         while (true)
         {
             RichConsole.Clear();
-            GameGrid.DrawFullMap();
+            GameGrid.DrawGameView();
             RichConsole.WriteLine("GAME VIEW");
+            RichConsole.WriteLine("CONTROLS - ARROWS KEYS TO MOVE - M FOR MAP - SPACE TO PREPARE BOW - ESC FOR QUIT");
+            // Draw sensations here. 
+
             var key = Console.ReadKey(true);
             switch (key.Key)
             {
+                case ConsoleKey.Spacebar:
+                    RichConsole.Write("BOW ARMED CHOOSE A DIRECTION - SPACEBAR TO DISENAGE BOW - ARROWS TO FIRE");
+                    var key2 = Console.ReadKey(true);
+                    switch (key2.Key)
+                    {
+                        case ConsoleKey.Spacebar:
+                            break;
+                    }
+
+                    break;
                 case ConsoleKey.UpArrow:
-                    Math.Clamp(player.y += 1, 0, 4);
-                    GameGrid.Entrance.PlayerPosition = new Vector2(player.x, player.y);
+                    TryMovePlayer(-1, 0); // Move x by -1, y by 0
                     break;
                 case ConsoleKey.DownArrow:
-                    Math.Clamp(player.y -= 1, 0, 4);
-                    GameGrid.Entrance.PlayerPosition = new Vector2(player.x, player.y);
+                    TryMovePlayer(1, 0); // Move x by +1, y by 0
                     break;
                 case ConsoleKey.LeftArrow:
+                    TryMovePlayer(0, -1); // Move x by 0, y by -1
                     break;
                 case ConsoleKey.RightArrow:
+                    TryMovePlayer(0, 1); // Move x by 0, y by +1
                     break;
+                case ConsoleKey.Escape:
+                    return;
                 case ConsoleKey.M:
+                    Console.Beep(100,1);
                     RichConsole.Clear();
                     GameGrid.DrawFullMap();
                     RichConsole.WriteLine("MAP VIEW -- Press M to Close");
@@ -69,6 +79,7 @@ class Game
                     {
                         //Wait for map to be closed
                     }
+                    Console.Beep(100, 1);
                     break;
             }
 
@@ -76,7 +87,34 @@ class Game
         }
     }
 
-    public int SetupDifficulty()
+    private void TryMovePlayer(int tryX, int tryY)
+    {
+        int targetX = player.x + tryX;
+        int targetY = player.y + tryY;
+
+        // Check for Room Boundaries (Entering/Exiting room and Exiting Cave when game complete)
+        if (targetX < 0 || targetX > 4 || targetY < 0 || targetY > 4)
+        {
+            //HandleRoomTransition();
+            Console.Beep(1000, 10);
+            return;
+        }
+
+        // Check for Solid Walls
+        if (GameGrid.PlayerRoom.TilesData[targetX, targetY].TileType == TileType.Solid)
+        {
+            Console.Beep(7000, 1); // Wall hit sound
+            return;
+        }
+
+        // Update Position
+        player.x = targetX;
+        player.y = targetY;
+        GameGrid.Entrance.PlayerPosition = new Vector2(targetX, targetY);
+        Console.Beep(4000, 1);
+    }
+
+    private int SetupDifficulty()
     {
         do
         {
