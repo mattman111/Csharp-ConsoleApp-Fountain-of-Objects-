@@ -20,7 +20,7 @@
 }
 
 //All possible colors of tiles
-public enum TileColor { Black, Grey, Orange, Yellow, White, DarkGrey, LightGrey, Blue, Red, Aqua }
+public enum TileColor { Black, Grey, Orange, Yellow, White, DarkGrey, LightGray, Blue, Red, Aqua }
 
 //All possible effects of tiles
 public enum TileEffect { None, Blink, DoubleUnderline }

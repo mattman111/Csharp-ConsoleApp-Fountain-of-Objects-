@@ -1,14 +1,12 @@
 ﻿using CSharpPlayersGuide.RichConsole;
 using System.Numerics;
-
 partial class Room
 {
     // All rooms are 5x5 tiles
     private const int _xlength = 5;
     private const int _ylength = 5;
 
-    private int _artplacementspotx = Random.Shared.Next(1, 4);
-    private int _artplacementspoty = Random.Shared.Next(1, 4);
+    private readonly Dictionary<Vector2, Entity> _entities = new();
 
     //Explicit backing fields
     private EdgeDir _edgeDiection;
@@ -81,54 +79,51 @@ partial class Room
         }
     }
 
-    //Chonky method that idk how to make smaller
+    public void AddEntity(int x, int y, Entity entity)
+    {
+        var pos = new Vector2(x, y);
+        _entities[pos] = entity;
+        RefreshRoomData();
+    }
+
+    public void RemoveEntity(int x, int y, Entity entity)
+    {
+        var pos = new Vector2(x, y);
+        _entities.Remove(pos);
+        RefreshRoomData();
+    }
+
     private Tile GenerateTileData(int i, int j)
     {
-        // 1. Handle Walls/Edges
-        if (IsWallCoordinate(i, j)) return new Tile(TileType.Solid, TileColor.DarkGrey, TileEffect.None);
+        Vector2 currentPos = new Vector2(i, j);
 
-        // 2. PLAYER
-        if (_playerPresent == true && (i == _playerPosition.X && j == _playerPosition.Y))
-        {
+        // PRIORITY OF LOGIC HANDLING
+        // 1. PLAYER
+        if (_playerPresent && _playerPosition == currentPos)
             return new Tile(TileType.Player, TileColor.White, TileEffect.None);
-        }
 
-        // 3. Special Room Centers
-        if (i == _artplacementspotx && j == _artplacementspoty)
-        {
-            return _roomType switch
-            {
-                RoomType.Fountain => new Tile(TileType.Fountain, TileColor.Aqua, TileEffect.Blink),
-                RoomType.Pit => new Tile(TileType.Pit, TileColor.LightGrey, TileEffect.Blink),
-                RoomType.Maelstrom => new Tile(TileType.Maelstrom, TileColor.Yellow, TileEffect.Blink),
-                RoomType.Amarok => new Tile(TileType.Amarok, TileColor.Red, TileEffect.Blink),
-                _ => new Tile(TileType.Empty, TileColor.Black, TileEffect.None)
-            };
-        }
+        // 2. Entities (Pits, Amarks, Maelstroms, Fountains, etc.)
+        if (_entities.TryGetValue(currentPos, out var entity))
+            return new Tile(entity.Type, entity.Color, entity.Effect);
 
-        // 4. Entrance Doorway(s) Logic
-        if (_roomType == RoomType.Entrance && IsEntrace(i, j))
-        {
+        // 3. Environment (Entrance then Walls)
+        if (IsEdge(i, j) && _roomType == RoomType.Entrance)
             return new Tile(TileType.Entrance, TileColor.Orange, TileEffect.None);
-        }
 
-        // 5. Pit Doorway(s) Logic
-        if (_roomType == RoomType.Pit && IsEntrace(i, j))
-        {
+        if (IsWallCoordinate(i, j))
             return new Tile(TileType.Solid, TileColor.DarkGrey, TileEffect.None);
-        }
 
-        // 6. Maelstrom Doorway(s) Logic
-        if (_roomType == RoomType.Maelstrom && IsEntrace(i, j))
-        {
+        if (IsEdge(i, j) && _roomType == RoomType.Pit)
             return new Tile(TileType.Solid, TileColor.DarkGrey, TileEffect.None);
-        }
 
-        // 7. Amark Doorway(s) Logic
-        if (_roomType == RoomType.Amarok && IsEntrace(i, j))
-        {
+        if (IsEdge(i, j) && _roomType == RoomType.Maelstrom)
             return new Tile(TileType.Solid, TileColor.DarkGrey, TileEffect.None);
-        }
+
+        if (IsEdge(i, j) && _roomType == RoomType.Amarok)
+            return new Tile(TileType.Solid, TileColor.DarkGrey, TileEffect.None);
+
+        if (IsEdge(i, j) && _roomType == RoomType.Empty)
+            return new Tile(TileType.Solid, TileColor.DarkGrey, TileEffect.None);
 
         //There is nothing to draw
         return new Tile(TileType.Empty, TileColor.Black, TileEffect.None);
@@ -136,19 +131,19 @@ partial class Room
 
     private bool IsWallCoordinate(int i, int j)
     {
-        // All possible cordinates leaving [0,2], [2,0], [2,4], [4,2] as potential doorsways.
-        bool isCorner = (i == 0 || i == 4) && (j == 0 || j == 1 || j == 3 || j == 4);
-        bool isSideMid = (i == 1 || i == 3) && (j == 0 || j == 4);
-        return isCorner || isSideMid;
+        // If it's on the edge but NOT one of the 4 middle-points (the doors)
+        bool isEdge = (i == 0 || i == 4 || j == 0 || j == 4);
+        return isEdge && !IsDoorwayCoordinate(i, j);
     }
 
     private bool IsDoorwayCoordinate(int i, int j)
     {
-        bool isDoorway = (i == 0 || i == 2 || i == 4) && (j == 0 || j == 2 || j == 4);
-        return isDoorway;
+        // The specific middle spots of each wall
+        return (i == 0 && j == 2) || (i == 4 && j == 2) ||
+               (i == 2 && j == 0) || (i == 2 && j == 4);
     }
 
-    private bool IsEntrace(int i, int j)
+    private bool IsEdge(int i, int j)
     {
         if (IsDoorwayCoordinate(i,j))
         {
@@ -187,14 +182,14 @@ partial class Room
 
     public Color GetTileColor(int x, int y)
     {
-        //if (RoomStatus == RoomStatus.Unknown)
-        //{
-        //    return Colors.Black;
-        //}
+        if (RoomStatus == RoomStatus.Unknown)
+        {
+            return Colors.Black;
+        }
 
         switch (TilesData[x, y].TileColor)
         {
-            case TileColor.LightGrey:
+            case TileColor.LightGray:
                 return Colors.LightGray;
             case TileColor.Grey:
                 return Colors.Gray;
@@ -223,10 +218,10 @@ partial class Room
 
     public string GetTileArt(int x, int y)
     {
-        //if (RoomStatus == RoomStatus.Unknown)
-        //{
-        //    return "  ";
-        //}
+        if (RoomStatus == RoomStatus.Unknown)
+        {
+            return "  ";
+        }
 
         switch (TilesData[x, y].TileType)
         {

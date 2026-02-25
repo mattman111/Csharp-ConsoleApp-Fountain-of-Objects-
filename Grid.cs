@@ -29,6 +29,8 @@ class Grid
     public Room PlayerRoom { get; private set; }
     public Room[,] GameViewRooms { get; private set; }
 
+    public bool FountainActivated { get; set; } = false;
+
 
 
     //TODO
@@ -46,8 +48,8 @@ class Grid
     {
         this.xlength = gridsize;
         this.ylength = gridsize;
-        _minEventRooms = gridsize;
-        _maxEventRooms = (xlength * ylength) / 2;
+        _minEventRooms = ((xlength * ylength) / 6);
+        _maxEventRooms = ((xlength * ylength) / 3);
         CaveRooms = new Room[xlength, ylength];
         EdgeRooms = new Room[(gridsize * gridsize) - ((int)Math.Pow(gridsize - 2, 2))];
         NonEdgeRooms = new Room[(int)Math.Pow(gridsize - 2, 2)];
@@ -128,6 +130,7 @@ class Grid
         {
             var fountainroom = NonEdgeRooms[Random.Shared.Next(0, NonEdgeRooms.Length)];
             fountainroom.SetRoomType(RoomType.Fountain);
+            fountainroom.AddEntity(Random.Shared.Next(1, 4), Random.Shared.Next(1, 4), new Entity(TileType.Fountain, TileColor.Aqua, TileEffect.Blink));
             Fountain = fountainroom;
         }
 
@@ -147,14 +150,20 @@ class Grid
                     case 1:
                         CaveRooms[x, y].SetRoomType(RoomType.Pit);
                         PitRooms.Add(room);
+                        for (int i = 0; i < Random.Shared.Next(2, 6); i++)
+                        {
+                            room.AddEntity(Random.Shared.Next(1, 4), Random.Shared.Next(1, 4), new Entity(TileType.Pit, TileColor.LightGray, TileEffect.Blink));
+                        }
                         break;
                     case 2:
                         CaveRooms[x, y].SetRoomType(RoomType.Maelstrom);
                         MaelstromRooms.Add(room);
+                        room.AddEntity(2, 2, new Entity(TileType.Maelstrom, TileColor.Yellow, TileEffect.Blink));
                         break;
                     case 3:
                         CaveRooms[x, y].SetRoomType(RoomType.Amarok);
                         AmarokRooms.Add(room);
+                        room.AddEntity(2, 2, new Entity(TileType.Amarok, TileColor.Red, TileEffect.Blink));
                         break;
                 }
 
@@ -217,6 +226,16 @@ class Grid
                 RichConsole.Write("\n");
             }
         }
+    }
+
+    public void AssignNewPlayerRoom(Room room, int playerx, int playery)
+    {
+        PlayerRoom.PlayerPresent = false;
+        PlayerRoom = room;
+        room.PlayerPresent = true;
+        room.RoomStatus = RoomStatus.Known;
+        RefreshGameView();
+        room.PlayerPosition = new Vector2(playerx, playery);
     }
 
     public void DrawGameView()
