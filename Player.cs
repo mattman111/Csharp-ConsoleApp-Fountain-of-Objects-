@@ -6,6 +6,8 @@
     public bool IsAlive { get; private set; }
     public bool HasWon {  get; set; }
 
+    public int ArrowCount { get; set; }
+
     public string emotion { get; private set; }
 
     public Player() : this("😐") { }

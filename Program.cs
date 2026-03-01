@@ -19,8 +19,8 @@ do
     " | | | (_) | |_| | | | | || (_| | | | | | | |__| | |   | |__| | |_) | |  __/ (__| |_\\__ \\ \r\n" +
     " |_|  \\___/ \\__,_|_| |_|\\__\\__,_|_|_| |_|  \\____/|_|    \\____/|_.__/| |\\___|\\___|\\__|___/ \r\n" +
     " By: Matt                                                         __/ |                   \r\n" +
-    " With tons of help from the Byte Club                             |___/                    ", Colors.AntiqueWhite, TextEffects.Blink);
-    RichConsole.WriteLine("\nMake sure to fullscreen! Double click the top bar! You may need to adjust zoom level with LCTRL + Mousewheel", Colors.Aqua, TextEffects.Blink);
+    " With tons of help from the Byte Club                             |___/                    ", Colors.AntiqueWhite, TextEffects.None);
+    RichConsole.WriteLine("\nMake sure to fullscreen! Double click the top bar! You may need to adjust zoom level with LCTRL + Mousewheel", Colors.Aqua, TextEffects.None);
     Console.SetWindowSize(Console.LargestWindowWidth, Console.LargestWindowHeight);
     Console.SetWindowPosition(0, 0);
     Console.BackgroundColor = ConsoleColor.Black;
@@ -61,7 +61,7 @@ class Game
             "I believe in you, adventurer. Use your arrow keys to begin.\n", Colors.White, TextEffects.None));
 
         //GAME LOOP
-        do
+        while (player.IsAlive == true)
         {
             //Clear the screen
             RichConsole.Clear();
@@ -135,7 +135,7 @@ class Game
             // GAMEPLAY LOGIC
             HandleGameplay();
 
-        } while (player.IsAlive == true);
+        }
     }
 
     private void HandleGameplay()
@@ -175,12 +175,14 @@ class Game
 
     private void HandleTeardown(string finalmessage, Color finalmessagecolor)
     {
-        PlayerMessages.Add(new Message(finalmessage, finalmessagecolor, TextEffects.Blink));
+        PlayerMessages.Clear();
+        PlayerMessages.Add(new Message(finalmessage, finalmessagecolor, TextEffects.None));
         PlayerMessages.Add(new Message("Your time in the Cavern of Objects has come to an end. Press Escape to return to main menu.", Colors.White, TextEffects.DoubleUnderline));
         RichConsole.Clear();
-        GameGrid.DrawGameView();
-        PreparePlayerMessages();
-        DisplayUI();
+        GameGrid.DrawFullMap();
+        RichConsole.WriteLine("-- Final Discovered Map --\n" +
+            "Press Escape to return to menu.");
+        DisplayPlayerMessages();
         Console.Beep(2000, 100);
         while (Console.ReadKey().Key != ConsoleKey.Escape)
         {
@@ -195,56 +197,65 @@ class Game
         RichConsole.WriteLine("CONTROLS - SPACE TO PREPARE BOW - H FOR HELP - ESC FOR QUIT");
         RichConsole.WriteLine($"PLAYER's X: {player.x} Y: {player.y} ROOM X={GameGrid.PlayerRoom.RoomInGridX},Y={GameGrid.PlayerRoom.RoomInGridY}");
         RichConsole.WriteLine($"PLAYER's Arrow Count: \n");
+        DisplayPlayerMessages();
+        RichConsole.WriteLine("\n");
+    }
+
+    private void DisplayPlayerMessages()
+    {
         for (int i = 0; i < PlayerMessages.Count; i++)
         {
             RichConsole.WriteLine(PlayerMessages[i].message, PlayerMessages[i].color, PlayerMessages[i].effect);
         }
         PlayerMessages.Clear();
-        RichConsole.WriteLine("\n");
     }
 
     private void PreparePlayerMessages()
     {
         
-        //GameViewRooms Messages
-        for (int i = 0; i < GameGrid.GameViewRooms.GetLength(0); i++)
+        if (player.IsAlive == true)
         {
-            for (int j = 0; j < GameGrid.GameViewRooms.GetLength(1); j++)
+            //GameViewRooms Messages
+            for (int i = 0; i < GameGrid.GameViewRooms.GetLength(0); i++)
             {
-                if (GameGrid.GameViewRooms[i, j] != null)
+                for (int j = 0; j < GameGrid.GameViewRooms.GetLength(1); j++)
                 {
-                    var room = GameGrid.GameViewRooms[i, j];
-                    var playerroom = GameGrid.PlayerRoom;
-                    switch (room.RoomType)
+                    if (GameGrid.GameViewRooms[i, j] != null)
                     {
-                        case RoomType.Entrance:
-                            PlayerMessages.Add(new Message("🍂 Autumn wind can be heard stiring in the distance.. 🍂", Colors.Orange, TextEffects.Italics));
-                            break;
-                        case RoomType.Amarok:
-                            PlayerMessages.Add(new Message("🐺 You can smell the rotten stench of an amarok in a nearby room.. 🐺", Colors.Red, TextEffects.Blink));
-                            break;
-                        case RoomType.Pit:
-                            if (room.PlayerPresent == true) PlayerMessages.Add(new Message("🕳️ You feel strong wind coming up. There must be pits in this room.. 🕳️", Colors.LightGray, TextEffects.Italics));
-                            if (room.PlayerPresent == false) PlayerMessages.Add(new Message("🕳️ You feel a draft. There is a pit in a nearby room.. 🕳️", Colors.LightGray, TextEffects.Italics));
-                            break;
+                        var room = GameGrid.GameViewRooms[i, j];
+                        var playerroom = GameGrid.PlayerRoom;
+                        switch (room.RoomType)
+                        {
+                            case RoomType.Entrance:
+                                PlayerMessages.Add(new Message("🍂 Autumn wind can be heard stirring in the distance.. 🍂", Colors.Orange, TextEffects.Italics));
+                                break;
+                            case RoomType.Amarok:
+                                PlayerMessages.Add(new Message("🐺 You can smell the rotten stench of an amarok in a nearby room.. 🐺", Colors.Red, TextEffects.None));
+                                break;
+                            case RoomType.Pit:
+                                if (room.PlayerPresent == true) PlayerMessages.Add(new Message("🕳️ You feel strong wind coming up. There must be pits in this room.. 🕳️", Colors.LightGray, TextEffects.Italics));
+                                if (room.PlayerPresent == false) PlayerMessages.Add(new Message("🕳️ You feel a draft. There is a pit in a nearby room.. 🕳️", Colors.LightGray, TextEffects.Italics));
+                                break;
 
-                        case RoomType.Maelstrom:
-                            PlayerMessages.Add(new Message("🌪️ You hear the growling and groaning of a maelstrom nearby.. 🌪️", Colors.Yellow, TextEffects.Italics));
-                            break;
-                        case RoomType.Fountain:
-                            if (room.PlayerPresent == true) PlayerMessages.Add(new Message("⛲ Your senses are overwhelmed with the sound of running water..  ⛲", Colors.Aqua, TextEffects.Blink));
-                            if (room.PlayerPresent == false) PlayerMessages.Add(new Message("⛲ You hear running water nearby.. ⛲", Colors.Aqua, TextEffects.Blink));
-                            break;
+                            case RoomType.Maelstrom:
+                                PlayerMessages.Add(new Message("🌪️ You hear the growling and groaning of a maelstrom nearby.. 🌪️", Colors.Yellow, TextEffects.Italics));
+                                break;
+                            case RoomType.Fountain:
+                                if (room.PlayerPresent == true) PlayerMessages.Add(new Message("⛲ Your senses are overwhelmed with the sound of running water..  ⛲", Colors.Aqua, TextEffects.None));
+                                if (room.PlayerPresent == false) PlayerMessages.Add(new Message("⛲ You hear running water nearby.. ⛲", Colors.Aqua, TextEffects.None));
+                                break;
+                        }
+
                     }
-
                 }
             }
         }
 
+
         //Victory Messages
         if (player.HasWon == true)
         {
-            PlayerMessages.Add(new Message("⛲ The fountain rumbles with magic. The fountain has been activated! Hurry to the exit! ⛲", Colors.Aqua, TextEffects.Blink));
+            PlayerMessages.Add(new Message("⛲ The cavern rumbles with magic. The Fountain has been activated! Hurry to the exit! ⛲", Colors.Aqua, TextEffects.None));
         }
     }
 
@@ -332,11 +343,11 @@ class Game
             // Clamp player's position
             if (player.HasWon == true)
             {
-                HandleTeardown("⛲ You exit the cavern with the fountain activated. Your quest has come to an end.. ⛲", Colors.Aqua);
+                HandleTeardown("You exit the cavern with the fountain activated. Your quest has come to an end..", Colors.White);
             }
             else
             {
-                PlayerMessages.Add(new Message("⛲ An shimmering breeze whisks you back into the shadows. Your hour has not yet struck... the Fountain still sleeps. ⛲", Colors.Aqua, TextEffects.Blink));
+                PlayerMessages.Add(new Message("🍂 An shimmering breeze whisks you back into the shadows. Your hour has not yet struck... the Fountain still sleeps.. 🍂", Colors.Orange, TextEffects.Italics));
             }
             player.x = 2;
             player.y = 2;
@@ -372,7 +383,7 @@ class Game
                     difficulty = Difficulty.HurtMe;
                     return 20;
             }
-            RichConsole.WriteLine("Error: Not a valid input!", Colors.Red, TextEffects.Blink);
+            RichConsole.WriteLine("Error: Not a valid input!", Colors.Red, TextEffects.None);
             Console.Beep(100, 100);
         }
         while (difficulty == Difficulty.Unset);
