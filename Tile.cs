@@ -20,10 +20,10 @@
 }
 
 //All possible colors of tiles
-public enum TileColor { Black, Grey, Orange, Yellow, White, DarkGrey, LightGray, Blue, Red, Aqua }
+public enum TileColor { Black, Grey, Orange, Yellow, White, DarkGrey, LightGray, Blue, Red, Aqua, Brown }
 
 //All possible effects of tiles
 public enum TileEffect { None, Blink, DoubleUnderline }
 
 //All possible types of tiles
-public enum TileType { Empty, Solid, Player, Entrance, Fountain, Pit, Maelstrom, Amarok }
+public enum TileType { Empty, Solid, Player, Entrance, Fountain, Pit, Maelstrom, Amarok, Arrow }

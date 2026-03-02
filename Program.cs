@@ -85,6 +85,18 @@ class Game
                     var key2 = Console.ReadKey(true);
                     switch (key2.Key)
                     {
+                        case ConsoleKey.UpArrow:
+                            HandleArrowShot(CardinalDir.North);
+                            break;
+                        case ConsoleKey.DownArrow:
+                            HandleArrowShot(CardinalDir.South);
+                            break;
+                        case ConsoleKey.RightArrow:
+                            HandleArrowShot(CardinalDir.East);
+                            break;
+                        case ConsoleKey.LeftArrow:
+                            HandleArrowShot(CardinalDir.West);
+                            break;
                         case ConsoleKey.Spacebar:
                             break;
                     }
@@ -138,6 +150,108 @@ class Game
         }
     }
 
+    private void HandleArrowShot(CardinalDir shotdir)
+    {
+        // Check arrow count
+        if (player.ArrowCount <= 0)
+        {
+            PlayerMessages.Add(new Message("🏹 You reach for an arrow, but your quiver is empty! 🏹", Colors.SandyBrown, TextEffects.None));
+            return;
+        }
+        player.ArrowCount--;
+
+        // Determine current room cords
+        int targetRoomX = GameGrid.PlayerRoom.RoomInGridX;
+        int targetRoomY = GameGrid.PlayerRoom.RoomInGridY;
+        Room currentRoom = GameGrid.PlayerRoom;
+
+        // Calculate target room cords with shotdir
+        switch (shotdir)
+        {
+            case CardinalDir.North:
+                targetRoomX--;
+                break;
+            case CardinalDir.South:
+                targetRoomX++;
+                break;
+            case CardinalDir.West:
+                targetRoomY--;
+                break;
+            case CardinalDir.East:
+                targetRoomY++;
+                break;
+        }
+
+        // Check the shot is in a valid spot
+        if (ReturnValidShootPosition(player.x, player.y, shotdir))
+        {
+            // Check if the target room exists within the grid
+            if (targetRoomX >= 0 && targetRoomX < GameGrid.CaveRooms.GetLength(0) && targetRoomY >= 0 && targetRoomY < GameGrid.CaveRooms.GetLength(1))
+            {
+                Room targetRoom = GameGrid.CaveRooms[targetRoomX, targetRoomY];
+
+                if (targetRoom.RoomType == RoomType.Amarok)
+                {
+                    PlayerMessages.Add(new Message($"🏹 Your arrow flies {shotdir} and strikes a foul beast! You hear a dying scream. 🏹", Colors.SandyBrown, TextEffects.None));
+
+                    // Kill the monster
+                    targetRoom.RoomType = RoomType.Empty;
+                    targetRoom.RemoveEntity(2, 2, new Entity(TileType.Amarok, TileColor.Red, TileEffect.Blink));
+                }
+                else if (targetRoom.RoomType == RoomType.Maelstrom)
+                {
+                    int teleportArrowx = Random.Shared.Next(0, GameGrid.xlength);
+                    int teleportArrowy = Random.Shared.Next(0, GameGrid.ylength);
+                    Room teleportArrowRoom = GameGrid.CaveRooms[teleportArrowx, teleportArrowy];
+
+                    if (teleportArrowRoom.RoomType == RoomType.Amarok)
+                    {
+                        PlayerMessages.Add(new Message($"🏹 You fire {shotdir} into a Maelstrom. You hear a dying scream echoing in the distance. 🏹", Colors.SandyBrown, TextEffects.None));
+                        teleportArrowRoom.RoomType = RoomType.Empty;
+                        teleportArrowRoom.RemoveEntity(2, 2, new Entity(TileType.Amarok, TileColor.Red, TileEffect.Blink));
+                    }
+                    else
+                    {
+                        PlayerMessages.Add(new Message($"🏹 You fire {shotdir} into a Maelstrom. The arrow vanishes into the whirling storm... and hits nothing. 🏹", Colors.SandyBrown, TextEffects.None));
+                    }
+                }
+                else
+                {
+                    PlayerMessages.Add(new Message($"🏹 You fire {shotdir}. The arrow vanishes into the darkness... and hits nothing. 🏹", Colors.SandyBrown, TextEffects.None));
+                }
+            }
+            else
+            {
+                //Check if player fires arrow out of the entrance like a werido.
+                if (currentRoom == GameGrid.Entrance)
+                {
+                    PlayerMessages.Add(new Message($"🏹 You fire an arrow {shotdir} outside, and it flys away! 🏹", Colors.SandyBrown, TextEffects.None));
+                }
+            }
+        }
+        else
+        {
+
+            PlayerMessages.Add(new Message($"🏹 You fire an arrow {shotdir}, but it shatters against a nearby wall! 🏹", Colors.SandyBrown, TextEffects.None));
+        }
+    }
+
+    private bool ReturnValidShootPosition(int x, int y, CardinalDir shotdir)
+    {
+        switch (shotdir)
+        {
+            case CardinalDir.North:
+            case CardinalDir.South:
+                if (y == 2) return true;
+                break;
+            case CardinalDir.West:
+            case CardinalDir.East:
+                if (x == 2) return true;
+                break;
+        }
+        return false;
+    }
+
     private void HandleGameplay()
     {
         var playerroom = GameGrid.PlayerRoom;
@@ -157,7 +271,7 @@ class Game
                     int newMaelstromX = Random.Shared.Next(0, GameGrid.CaveRooms.GetLength(0));
                     int newMaelstromY = Random.Shared.Next(0, GameGrid.CaveRooms.GetLength(1));
                     Room targetroom = GameGrid.CaveRooms[newMaelstromX, newMaelstromY];
-                    if (targetroom.RoomType == RoomType.Empty )
+                    if (targetroom.RoomType == RoomType.Empty)
                     {
                         targetroom.RoomType = RoomType.Maelstrom;
                         targetroom.AddEntity(2, 2, new Entity(TileType.Maelstrom, TileColor.Yellow, TileEffect.Blink));
@@ -196,7 +310,7 @@ class Game
         RichConsole.WriteLine("-- GAME VIEW --");
         RichConsole.WriteLine("CONTROLS - SPACE TO PREPARE BOW - H FOR HELP - ESC FOR QUIT");
         RichConsole.WriteLine($"PLAYER's X: {player.x} Y: {player.y} ROOM X={GameGrid.PlayerRoom.RoomInGridX},Y={GameGrid.PlayerRoom.RoomInGridY}");
-        RichConsole.WriteLine($"PLAYER's Arrow Count: \n");
+        RichConsole.WriteLine($"PLAYER's Arrow Count: {player.ArrowCount} \n");
         DisplayPlayerMessages();
         RichConsole.WriteLine("\n");
     }
@@ -212,7 +326,7 @@ class Game
 
     private void PreparePlayerMessages()
     {
-        
+
         if (player.IsAlive == true)
         {
             //GameViewRooms Messages
@@ -291,6 +405,17 @@ class Game
         if ((GameGrid.PlayerRoom.TilesData[targetX, targetY].TileType) == TileType.Fountain)
         {
             player.HasWon = true;
+        }
+
+        if ((GameGrid.PlayerRoom.TilesData[targetX, targetY].TileType) == TileType.Arrow)
+        {
+            player.x = targetX;
+            player.y = targetY;
+            GameGrid.PlayerRoom.PlayerPosition = new Vector2(targetX, targetY);
+            GameGrid.PlayerRoom.RoomType = RoomType.Empty;
+            GameGrid.PlayerRoom.RemoveEntity(targetX, targetY, new Entity(TileType.Arrow, TileColor.Brown, TileEffect.Blink));
+            PlayerMessages.Add(new Message("🏹 You find an old bow and arrow. Only the arrow is salvageable. Your arrow count has increased.. 🏹", Colors.SandyBrown, TextEffects.None));
+            player.ArrowCount += 1;
         }
 
 
@@ -392,3 +517,4 @@ class Game
 }
 
 public record Message(string message, Color color, TextEffects effect);
+public enum CardinalDir { North, South, East, West }

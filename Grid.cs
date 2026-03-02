@@ -18,6 +18,7 @@ class Grid
     //Lists of all event rooms
     //I do not know the size of these until run time. They must be lists.
     public List<Room> PitRooms { get; }
+    public List<Room> ArrowRooms { get; }
     public List<Room> MaelstromRooms { get; }
     public List<Room> AmarokRooms { get; }
 
@@ -42,6 +43,7 @@ class Grid
     private int _fountainNum = 1;
     private int _minEventRooms;
     private int _maxEventRooms;
+    private int _arrowrooms;
 
 
     public Grid(int gridsize)
@@ -50,13 +52,15 @@ class Grid
         this.ylength = gridsize;
         _minEventRooms = ((xlength * ylength) / 6);
         _maxEventRooms = ((xlength * ylength) / 3);
+        _arrowrooms = Math.Clamp(((xlength * ylength) / 7) - 10, 1, 10);
         CaveRooms = new Room[xlength, ylength];
         EdgeRooms = new Room[(gridsize * gridsize) - ((int)Math.Pow(gridsize - 2, 2))];
         NonEdgeRooms = new Room[(int)Math.Pow(gridsize - 2, 2)];
         PitRooms = new List<Room>();
         MaelstromRooms = new List<Room>();
         AmarokRooms = new List<Room>();
-        GameViewRooms = new Room[3,3];
+        ArrowRooms = new List<Room>();
+        GameViewRooms = new Room[3, 3];
         SetupGrid();
     }
 
@@ -168,7 +172,27 @@ class Grid
                 }
 
             }
+        }
 
+        //Assign Arrow Rooms
+        int j = 0;
+        while (j < _arrowrooms)
+        {
+            int x2 = Random.Shared.Next(0, xlength);
+            int y2 = Random.Shared.Next(0, ylength);
+
+            if (CaveRooms[x2, y2].RoomType == RoomType.Empty)
+            {
+                Room room2 = CaveRooms[x2, y2];
+                CaveRooms[x2, y2].SetRoomType(RoomType.Empty);
+                ArrowRooms.Add(room2);
+                for (int k = 0; k < 1; k++)
+                {
+                    room2.AddEntity(Random.Shared.Next(1, 4), Random.Shared.Next(1, 4), new Entity(TileType.Arrow, TileColor.Brown, TileEffect.Blink));
+                }
+
+            }
+            j++;
         }
     }
 

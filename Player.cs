@@ -18,6 +18,7 @@
         x = 2;
         y = 2;
         IsAlive = true;
+        ArrowCount = 5;
     }
 
     public void SetPlayerLivingStatus(bool value)

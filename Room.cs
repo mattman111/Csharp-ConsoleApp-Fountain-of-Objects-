@@ -205,6 +205,8 @@ partial class Room
                 return Colors.LightCyan;
             case TileColor.Yellow:
                 return Colors.Yellow;
+            case TileColor.Brown:
+                return Colors.SandyBrown;
             default:
                 return Colors.Red;
         }
@@ -241,6 +243,8 @@ partial class Room
                 return "🌪️";
             case TileType.Amarok:
                 return "🐺";
+            case TileType.Arrow:
+                return "🏹";
             default:
                 //If we got here something went horribly wrong.
                 return "?";
