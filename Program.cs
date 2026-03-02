@@ -200,6 +200,7 @@ class Game
                 }
                 else if (targetRoom.RoomType == RoomType.Maelstrom)
                 {
+                    // Calculate teleported arrow
                     int teleportArrowx = Random.Shared.Next(0, GameGrid.xlength);
                     int teleportArrowy = Random.Shared.Next(0, GameGrid.ylength);
                     Room teleportArrowRoom = GameGrid.CaveRooms[teleportArrowx, teleportArrowy];
@@ -213,6 +214,25 @@ class Game
                     else
                     {
                         PlayerMessages.Add(new Message($"🏹 You fire {shotdir} into a Maelstrom. The arrow vanishes into the whirling storm... and hits nothing. 🏹", Colors.SandyBrown, TextEffects.None));
+                    }
+
+                    //
+                    targetRoom.RoomType = RoomType.Empty;
+                    targetRoom.RemoveEntity(2, 2, new Entity(TileType.Maelstrom, TileColor.Yellow, TileEffect.Blink));
+                    PlayerMessages.Add(new Message("🌪️ A nearby maelstrom has sputtered out. It has gone someplace else..  🌪️", Colors.Yellow, TextEffects.Blink));
+                    bool newMaelstromAssigned = false;
+                    while (newMaelstromAssigned == false)
+                    {
+                        int newMaelstromX = Random.Shared.Next(0, GameGrid.CaveRooms.GetLength(0));
+                        int newMaelstromY = Random.Shared.Next(0, GameGrid.CaveRooms.GetLength(1));
+                        Room targetroom = GameGrid.CaveRooms[newMaelstromX, newMaelstromY];
+                        if (targetroom.RoomType == RoomType.Empty)
+                        {
+                            targetroom.RoomType = RoomType.Maelstrom;
+                            targetroom.AddEntity(2, 2, new Entity(TileType.Maelstrom, TileColor.Yellow, TileEffect.Blink));
+
+                            newMaelstromAssigned = true;
+                        }
                     }
                 }
                 else

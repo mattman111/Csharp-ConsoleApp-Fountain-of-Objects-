@@ -182,10 +182,10 @@ partial class Room
 
     public Color GetTileColor(int x, int y)
     {
-        if (RoomStatus == RoomStatus.Unknown)
-        {
-            return Colors.Black;
-        }
+        //if (RoomStatus == RoomStatus.Unknown)
+        //{
+        //    return Colors.Black;
+        //}
 
         switch (TilesData[x, y].TileColor)
         {
@@ -220,10 +220,10 @@ partial class Room
 
     public string GetTileArt(int x, int y)
     {
-        if (RoomStatus == RoomStatus.Unknown)
-        {
-            return "  ";
-        }
+        //if (RoomStatus == RoomStatus.Unknown)
+        //{
+        //    return "  ";
+        //}
 
         switch (TilesData[x, y].TileType)
         {
