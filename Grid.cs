@@ -52,7 +52,7 @@ class Grid
         this.ylength = gridsize;
         _minEventRooms = ((xlength * ylength) / 6);
         _maxEventRooms = ((xlength * ylength) / 3);
-        _arrowrooms = Math.Clamp(((xlength * ylength) / 7) - 10, 1, 10);
+        _arrowrooms = Math.Clamp(((xlength * ylength) / 7) - 25, 1, (xlength * ylength) / 7);
         CaveRooms = new Room[xlength, ylength];
         EdgeRooms = new Room[(gridsize * gridsize) - ((int)Math.Pow(gridsize - 2, 2))];
         NonEdgeRooms = new Room[(int)Math.Pow(gridsize - 2, 2)];

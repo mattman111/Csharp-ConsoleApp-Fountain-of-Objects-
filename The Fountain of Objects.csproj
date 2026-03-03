@@ -6,10 +6,17 @@
     <RootNamespace>The_Fountain_of_Objects</RootNamespace>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+	<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="CSharpPlayersGuide.RichConsole" Version="6.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="CSharpPlayersGuide.RichConsole.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

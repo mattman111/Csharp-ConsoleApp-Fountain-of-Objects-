@@ -4,12 +4,8 @@ using System.Numerics;
 
 //THIS IS THE ENTRY POINT
 
-//Ideas for future features.
-//Replay of all player inputs
 
-
-//TODO
-// Pits
+//Primary loop
 do
 {
     RichConsole.WriteLine("  ______                _        _          ____   __    ____  _     _           _        \r\n" +
@@ -134,8 +130,8 @@ class Game
                         $"Maelstroms are violent forces of sentient wind. Entering a room with one could transport you to any other location in the caverns. You will be able to hear their growling and groaning in nearby rooms.\n" +
                         $"Amaroks roam the caverns. Encountering one is certain death, but you can smell their rotten stench in nearby rooms.\n" +
                         $"You carry with you a bow and a quiver of arrows. You can use them to shoot monsters in the caverns but be warned: you have a limited supply.\n\n" +
-                        $"CONTROLS - ARROW KEYS TO MOVE - SPACE TO PREPARE BOW" +
-                        $" -- END OF HELP VIEW --" +
+                        $"CONTROLS - ARROW KEYS TO MOVE - SPACE TO PREPARE BOW\n" +
+                        $" -- END OF HELP VIEW --\n" +
                         $" PRESS ESCAPE TO RETURN");
                     while (Console.ReadKey().Key != ConsoleKey.Escape)
                     {
@@ -216,7 +212,7 @@ class Game
                         PlayerMessages.Add(new Message($"🏹 You fire {shotdir} into a Maelstrom. The arrow vanishes into the whirling storm... and hits nothing. 🏹", Colors.SandyBrown, TextEffects.None));
                     }
 
-                    //
+                    //Move Maelstrom
                     targetRoom.RoomType = RoomType.Empty;
                     targetRoom.RemoveEntity(2, 2, new Entity(TileType.Maelstrom, TileColor.Yellow, TileEffect.Blink));
                     PlayerMessages.Add(new Message("🌪️ A nearby maelstrom has sputtered out. It has gone someplace else..  🌪️", Colors.Yellow, TextEffects.Blink));
