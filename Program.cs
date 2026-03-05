@@ -303,10 +303,10 @@ class Game
         }
     }
 
-    private void HandleTeardown(string finalmessage, Color finalmessagecolor)
+    private void HandleTeardown(string finalMessage, Color finalMessageColor)
     {
         PlayerMessages.Clear();
-        PlayerMessages.Add(new Message(finalmessage, finalmessagecolor, TextEffects.None));
+        PlayerMessages.Add(new Message(finalMessage, finalMessageColor, TextEffects.None));
         PlayerMessages.Add(new Message("Your time in the Cavern of Objects has come to an end. Press Escape to return to main menu.", Colors.White, TextEffects.DoubleUnderline));
         RichConsole.Clear();
         GameGrid.DrawFullMap();
@@ -363,16 +363,16 @@ class Game
                                 PlayerMessages.Add(new Message("🐺 You can smell the rotten stench of an amarok in a nearby room.. 🐺", Colors.Red, TextEffects.None));
                                 break;
                             case RoomType.Pit:
-                                if (room.PlayerPresent == true) PlayerMessages.Add(new Message("🕳️ You feel strong wind coming up. There must be pits in this room.. 🕳️", Colors.LightGray, TextEffects.Italics));
-                                if (room.PlayerPresent == false) PlayerMessages.Add(new Message("🕳️ You feel a draft. There is a pit in a nearby room.. 🕳️", Colors.LightGray, TextEffects.Italics));
+                                if (room.PlayerPresent) PlayerMessages.Add(new Message("🕳️ You feel strong wind coming up. There must be pits in this room.. 🕳️", Colors.LightGray, TextEffects.Italics));
+                                if (!room.PlayerPresent) PlayerMessages.Add(new Message("🕳️ You feel a draft. There is a pit in a nearby room.. 🕳️", Colors.LightGray, TextEffects.Italics));
                                 break;
 
                             case RoomType.Maelstrom:
                                 PlayerMessages.Add(new Message("🌪️ You hear the growling and groaning of a maelstrom nearby.. 🌪️", Colors.Yellow, TextEffects.Italics));
                                 break;
                             case RoomType.Fountain:
-                                if (room.PlayerPresent == true) PlayerMessages.Add(new Message("⛲ Your senses are overwhelmed with the sound of running water..  ⛲", Colors.Aqua, TextEffects.None));
-                                if (room.PlayerPresent == false) PlayerMessages.Add(new Message("⛲ You hear running water nearby.. ⛲", Colors.Aqua, TextEffects.None));
+                                if (room.PlayerPresent) PlayerMessages.Add(new Message("⛲ Your senses are overwhelmed with the sound of running water..  ⛲", Colors.Aqua, TextEffects.None));
+                                if (!room.PlayerPresent) PlayerMessages.Add(new Message("⛲ You hear running water nearby.. ⛲", Colors.Aqua, TextEffects.None));
                                 break;
                         }
 
@@ -383,7 +383,7 @@ class Game
 
 
         //Victory Messages
-        if (player.HasWon == true)
+        if (player.HasWon)
         {
             PlayerMessages.Add(new Message("⛲ The cavern rumbles with magic. The Fountain has been activated! Hurry to the exit! ⛲", Colors.Aqua, TextEffects.None));
         }

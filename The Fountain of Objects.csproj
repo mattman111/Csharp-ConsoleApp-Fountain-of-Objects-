@@ -10,6 +10,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="builds\**" />
+    <EmbeddedResource Remove="builds\**" />
+    <None Remove="builds\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="CSharpPlayersGuide.RichConsole" Version="6.0.0" />
   </ItemGroup>
 
