@@ -63,6 +63,7 @@ class Game
             RichConsole.Clear();
 
             //Update and draw the game view
+            RichConsole.Write("********************************\n");
             GameGrid.DrawGameView();
 
             //Prepare all necessary player messages
@@ -323,8 +324,8 @@ class Game
 
     private void DisplayUI()
     {
-        RichConsole.WriteLine("-- GAME VIEW --");
-        RichConsole.WriteLine("CONTROLS - SPACE TO PREPARE BOW - H FOR HELP - ESC FOR QUIT");
+        RichConsole.WriteLine("         -- GAME VIEW --        \n");
+        RichConsole.WriteLine("CONTROLS - SPACE TO PREPARE BOW - H FOR HELP - ESC FOR QUIT\n\n");
         RichConsole.WriteLine($"PLAYER's X: {player.x} Y: {player.y} ROOM X={GameGrid.PlayerRoom.RoomInGridX},Y={GameGrid.PlayerRoom.RoomInGridY}");
         RichConsole.WriteLine($"PLAYER's Arrow Count: {player.ArrowCount} \n");
         DisplayPlayerMessages();

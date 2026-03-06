@@ -268,9 +268,11 @@ class Grid
         for (int i = 0; i < GameViewRooms.GetLength(0); i++)
         {
             //Room Row
+
             for (int j = 0; j < Room.NumOfRoomTilesInRow; j++)
             {
                 // Grid Col
+                RichConsole.Write("*");
                 for (int k = 0; k < GameViewRooms.GetLength(1); k++)
                 {
                     if (GameViewRooms[i, k] != null)
@@ -281,7 +283,9 @@ class Grid
                     {
                         RichConsole.Write("          ");
                     }
+
                 }
+                                RichConsole.Write("*");
                 RichConsole.Write("\n");
             }
         }
