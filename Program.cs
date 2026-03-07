@@ -40,11 +40,14 @@ class Game
     public Player player { get; set; }
     public List<Message> PlayerMessages { get; } = new List<Message>();
 
+    public DateTime startTime;
+
     public Game()
     {
         // GRID CONSTRUCTOR
         GameGrid = new Grid(SetupDifficulty());
         player = new Player();
+        startTime = DateTime.Now;
     }
 
     public void PlayGame()
@@ -315,6 +318,9 @@ class Game
             "Press Escape to return to menu.");
         DisplayPlayerMessages();
         Console.Beep(2000, 100);
+        DateTime endTime = DateTime.Now;
+        TimeSpan timeInCave = endTime - startTime;
+        RichConsole.WriteLine($"Time Spent in Cave: {timeInCave}");
         while (Console.ReadKey().Key != ConsoleKey.Escape)
         {
             //Wait for player to hit escape
